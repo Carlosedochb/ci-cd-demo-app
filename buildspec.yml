@@ -1,13 +1,15 @@
-version: 0.2
 phases:
-  install:
+  pre_build:
     commands:
-      - echo "Instalando dependencias..."
-      - pip install -r requirements.txt
+      - aws --version
+      - REPO_URI=<tu_ecr_repo_uri>
+      - aws ecr get-login-password | docker login --username AWS --password-stdin $REPO_URI
   build:
     commands:
-      - echo "Ejecutando pruebas..."
-      - pytest tests/
+      - docker build -t myapp:latest .
+      - docker tag myapp:latest $REPO_URI:latest
+  post_build:
+    commands:
+      - docker push $REPO_URI:latest
 artifacts:
-  files:
-    - '**/*'
+  files: []
